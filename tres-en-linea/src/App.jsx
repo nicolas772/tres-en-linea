@@ -7,8 +7,15 @@ import { Board } from './components/Board'
 import { Turn } from './components/Turn'
 
 function App() {
-  const [board, setBoard] = useState(Array(9).fill(null))
-  const [turn, setTurn] = useState(TURNS.X)
+  const [board, setBoard] = useState(()=>{
+    const boardFromStorage = window.localStorage.getItem('board')
+    return boardFromStorage ? JSON.parse(boardFromStorage) : Array(9).fill(null)
+  })
+  const [turn, setTurn] = useState(() => {
+    const turnFromStorage = window.localStorage.getItem('turn')
+    if (turnFromStorage) return turnFromStorage
+    return TURNS.X
+  })
   const [winner, setWinner] = useState(null) // null no hay ganador, false es empate
 
   const checkWinner = (boardToCheck) => {
@@ -44,6 +51,9 @@ function App() {
     //cambiar turno
     const newTurn = turn === TURNS.X ? TURNS.O : TURNS.X
     setTurn(newTurn)
+    //guardamos partida en local storage, para que la recarga de pagina no afecte el juego
+    window.localStorage.setItem('board', JSON.stringify(newBoard))
+    window.localStorage.setItem('turn', newTurn)
     //revisamos si hay ganador
     const newWinner = checkWinner(newBoard)
     if (newWinner){
